@@ -1,0 +1,21 @@
+
+  "dev": "tsx src/index.ts"{
+  "name": "core-skeleton",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "prisma:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "prisma": "^7.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.4.0",
+    "dotenv": "^17.2.4"
+  }
+}

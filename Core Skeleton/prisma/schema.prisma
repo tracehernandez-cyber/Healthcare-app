@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users     User[]
+  pathways  Pathway[]
+  patients  Patient[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clinicId  String
+  email     String   @unique
+  role      Role     @default(PATIENT)
+  status    UserStatus @default(INVITED)
+  createdAt DateTime @default(now())
+
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  patient   Patient?
+}
+
+model Patient {
+  id        String   @id @default(cuid())
+  clinicId  String
+  userId    String   @unique
+  firstName String?
+  lastName  String?
+  phone     String?
+  createdAt DateTime @default(now())
+
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  enrollments Enrollment[]
+}
+
+model Pathway {
+  id        String   @id @default(cuid())
+  clinicId  String
+  name      String
+  createdAt DateTime @default(now())
+
+  clinic    Clinic   @relation(fields: [clinicId], references: [id])
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  patientId String
+  pathwayId String
+  status    EnrollmentStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  pathway   Pathway  @relation(fields: [pathwayId], references: [id])
+
+  @@unique([patientId, pathwayId])
+}
+
+enum Role {
+  PATIENT
+  CLINICIAN
+  ADMIN
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
