@@ -1,20 +1,55 @@
-import { Router } from "express"
-import { prisma } from "../lib/prisma"
+import { Router } from "express";
+import { z } from "zod";
+import { validate } from "../middleware/validate";
+import * as Clinics from "../controllers/clinics.controller";
 
-export const clinicsRouter = Router()
+export const clinicsRouter = Router();
 
-// Basic placeholder route so you can confirm wiring works
-clinicsRouter.get("/:id/queue", (req, res) => {
-  res.json({ clinicId: req.params.id, queue: [] })
-})
+clinicsRouter.get("/", Clinics.listClinics);
 
-// DB smoke test (temporary)
-clinicsRouter.get("/db-test", async (req, res, next) => {
-  try {
-    const result = await prisma.$queryRaw`SELECT 1 as ok`
-    res.json({ ok: true, result })
-  } catch (err) {
-    next(err)
-  }
-})
+clinicsRouter.get(
+  "/:id",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+  }),
+  Clinics.getClinic
+);
 
+clinicsRouter.post(
+  "/",
+  validate({
+    body: z.object({
+      name: z.string().min(1),
+    }),
+  }),
+  Clinics.createClinic
+);
+
+clinicsRouter.patch(
+  "/:id",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+    body: z
+      .object({
+        name: z.string().min(1).optional(),
+      })
+      .refine((b) => Object.keys(b).length > 0, {
+        message: "No fields provided",
+      }),
+  }),
+  Clinics.updateClinic
+);
+
+clinicsRouter.get(
+  "/:id/queue",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+  }),
+  Clinics.clinicQueue
+);

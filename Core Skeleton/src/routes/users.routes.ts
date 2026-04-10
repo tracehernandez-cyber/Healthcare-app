@@ -1,20 +1,41 @@
 import { Router } from "express";
+import { z } from "zod";
+import { validate } from "../middleware/validate";
+import * as Users from "../controllers/users.controller";
 
 export const usersRouter = Router();
 
-// GET /api/users?clinicId=...
-usersRouter.get("/", (req, res) => {
-  res.json({ users: [], clinicId: req.query.clinicId ?? null });
-});
+usersRouter.get(
+  "/",
+  validate({
+    query: z.object({
+      clinicId: z.string().min(1).optional(),
+    }),
+  }),
+  Users.listUsers
+);
 
-// GET /api/users/:id
-usersRouter.get("/:id", (req, res) => {
-  res.json({ id: req.params.id });
-});
+usersRouter.get(
+  "/:id",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+  }),
+  Users.getUser
+);
 
-// PATCH /api/users/:id
-usersRouter.patch("/:id", (req, res) => {
-  res.json({ id: req.params.id, updated: req.body });
-});
-
-
+usersRouter.patch(
+  "/:id",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+    body: z.object({
+      email: z.string().email().optional(),
+      role: z.enum(["PATIENT", "STAFF", "ADMIN"]).optional(),
+      status: z.enum(["INVITED", "ACTIVE", "DISABLED"]).optional(),
+    }).refine((b) => Object.keys(b).length > 0, { message: "No fields provided" }),
+  }),
+  Users.updateUser
+);
