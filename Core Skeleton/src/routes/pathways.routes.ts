@@ -42,9 +42,13 @@ pathwaysRouter.patch(
     params: z.object({
       id: z.string().min(1),
     }),
-    body: z.object({
-      name: z.string().min(1).optional(),
-    }).refine((b) => Object.keys(b).length > 0, { message: "No fields provided" }),
+    body: z
+      .object({
+        name: z.string().min(1).optional(),
+      })
+      .refine((b) => Object.keys(b).length > 0, {
+        message: "No fields provided",
+      }),
   }),
   Pathways.updatePathway
 );

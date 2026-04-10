@@ -27,6 +27,16 @@ clinicsRouter.post(
   Clinics.createClinic
 );
 
+clinicsRouter.get(
+  "/:id/queue",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+  }),
+  Clinics.clinicQueue
+);
+
 clinicsRouter.patch(
   "/:id",
   validate({
@@ -42,14 +52,4 @@ clinicsRouter.patch(
       }),
   }),
   Clinics.updateClinic
-);
-
-clinicsRouter.get(
-  "/:id/queue",
-  validate({
-    params: z.object({
-      id: z.string().min(1),
-    }),
-  }),
-  Clinics.clinicQueue
 );

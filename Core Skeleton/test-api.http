@@ -1,0 +1,96 @@
+@baseUrl = http://localhost:3000/api
+
+### Create clinic
+# @name createClinic
+POST {{baseUrl}}/clinics
+Content-Type: application/json
+
+{
+  "name": "Test Clinic Auto"
+}
+
+### Get clinic
+GET {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}
+
+### Create pathway
+# @name createPathway
+POST {{baseUrl}}/pathways
+Content-Type: application/json
+
+{
+  "clinicId": "{{createClinic.response.body.$.id}}",
+  "name": "Knee Recovery Pathway"
+}
+
+### Get pathway
+GET {{baseUrl}}/pathways/{{createPathway.response.body.$.id}}
+
+### List clinics
+GET {{baseUrl}}/clinics
+
+### Update clinic
+PATCH {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "name": "Test Clinic Auto Updated"
+}
+
+### Get updated clinic
+GET {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}
+
+### Clinic queue
+GET {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}/queue
+
+### Missing clinic
+GET {{baseUrl}}/clinics/not-a-real-id
+
+### Invalid clinic patch - empty body
+PATCH {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}
+Content-Type: application/json
+
+{}
+
+### Patch missing clinic
+PATCH {{baseUrl}}/clinics/not-a-real-id
+Content-Type: application/json
+
+{
+  "name": "Should fail"
+}
+
+### List pathways
+GET {{baseUrl}}/pathways
+
+### List pathways by clinic
+GET {{baseUrl}}/pathways?clinicId={{createClinic.response.body.$.id}}
+
+### Update pathway
+PATCH {{baseUrl}}/pathways/{{createPathway.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "name": "Knee Recovery Pathway Updated"
+}
+
+### Onboard patient
+# @name onboardPatient
+POST {{baseUrl}}/workflows/onboard
+Content-Type: application/json
+
+{
+  "clinicId": "{{createClinic.response.body.$.id}}",
+  "pathwayId": "{{createPathway.response.body.$.id}}",
+  "patient": {
+    "email": "patient1@example.com",
+    "firstName": "Trace",
+    "lastName": "Tester",
+    "phone": "707-555-1111"
+  }
+}
+
+### Patient dashboard
+GET {{baseUrl}}/workflows/patients/{{onboardPatient.response.body.$.patient.id}}/dashboard
+
+### Clinic queue after onboarding
+GET {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}/queue

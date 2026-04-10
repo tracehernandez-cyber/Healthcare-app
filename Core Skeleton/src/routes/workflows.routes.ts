@@ -15,14 +15,33 @@ workflowsRouter.post(
       patient: z.object({
         email: z.string().email(),
         firstName: z.string().min(1),
-        lastName: z.string().min(1).optional(),
+        lastName: z.string().min(1), // now required
         phone: z.string().min(7).optional(),
       }),
-    }).refine((b) => !!b.clinicId || !!b.clinicName, { message: "clinicId or clinicName required" }),
+    }).refine(
+      (b) => !!b.clinicId || !!b.clinicName,
+      { message: "clinicId or clinicName required" }
+    ),
   }),
   Workflows.onboard
 );
 
-workflowsRouter.get("/patients/:id/dashboard", Workflows.patientDashboard);
-workflowsRouter.get("/clinics/:id/queue", Workflows.clinicQueue);
+workflowsRouter.get(
+  "/patients/:id/dashboard",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+  }),
+  Workflows.patientDashboard
+);
 
+workflowsRouter.get(
+  "/clinics/:id/queue",
+  validate({
+    params: z.object({
+      id: z.string().min(1),
+    }),
+  }),
+  Workflows.clinicQueue
+);
