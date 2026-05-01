@@ -33,7 +33,7 @@ usersRouter.patch(
     }),
     body: z.object({
       email: z.string().email().optional(),
-      role: z.enum(["PATIENT", "STAFF", "ADMIN"]).optional(),
+      role: z.enum(["PATIENT", "CLINICIAN", "ADMIN"]).optional(),
       status: z.enum(["INVITED", "ACTIVE", "DISABLED"]).optional(),
     }).refine((b) => Object.keys(b).length > 0, { message: "No fields provided" }),
   }),

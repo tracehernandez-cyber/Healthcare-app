@@ -7,9 +7,12 @@
     "dev": "tsx watch src/index.ts",
     "prisma:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/pg": "^8.16.0",
     "@types/supertest": "^7.2.0",
@@ -22,6 +25,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "pg": "^8.18.0",

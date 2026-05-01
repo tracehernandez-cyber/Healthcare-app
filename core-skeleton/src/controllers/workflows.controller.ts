@@ -63,7 +63,7 @@ export async function onboard(req: Request, res: Response, next: NextFunction) {
 
 export async function patientDashboard(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const patient = await prisma.patient.findUnique({
       where: { id },
@@ -74,7 +74,7 @@ export async function patientDashboard(req: Request, res: Response, next: NextFu
           include: { pathway: true },
         },
       },
-    });
+    }) as any;
 
     if (!patient) {
       return res.status(404).json({ error: "Patient not found" });
@@ -91,7 +91,7 @@ export async function patientDashboard(req: Request, res: Response, next: NextFu
 
 export async function clinicQueue(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id: clinicId } = req.params;
+    const clinicId = req.params.id as string;
 
     const queue = await prisma.enrollment.findMany({
       where: {
@@ -103,7 +103,7 @@ export async function clinicQueue(req: Request, res: Response, next: NextFunctio
         patient: true,
         pathway: true,
       },
-    });
+    }) as any[];
 
     res.json(
       queue.map((e) => ({

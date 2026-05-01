@@ -7,11 +7,15 @@ export const patientsRouter = Router();
 
 patientsRouter.post(
   "/",
-  validate({ query: z.object({ clinicId: z.string().min(1) }), body: z.object({
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    phone: z.string().min(7),
-  }) }),
+  validate({
+    body: z.object({
+      clinicId: z.string().min(1),
+      userId: z.string().min(1),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      phone: z.string().min(7).optional(),
+    }),
+  }),
   Patients.createPatient
 );
 

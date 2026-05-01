@@ -16,7 +16,7 @@ export async function listClinics(_req: Request, res: Response, next: NextFuncti
 
 export async function getClinic(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const clinic = await prisma.clinic.findUnique({
       where: { id },
@@ -48,7 +48,7 @@ export async function createClinic(req: Request, res: Response, next: NextFuncti
 
 export async function updateClinic(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { name } = req.body;
 
     const clinic = await prisma.clinic.update({
@@ -73,7 +73,7 @@ export async function updateClinic(req: Request, res: Response, next: NextFuncti
 
 export async function clinicQueue(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id: clinicId } = req.params;
+    const clinicId = req.params.id as string;
 
     const queue = await prisma.enrollment.findMany({
       where: {
@@ -85,7 +85,7 @@ export async function clinicQueue(req: Request, res: Response, next: NextFunctio
         patient: true,
         pathway: true,
       },
-    });
+    }) as any[];
 
     res.json(
       queue.map((e) => ({

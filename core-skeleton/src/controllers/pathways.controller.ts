@@ -19,7 +19,7 @@ export async function listPathways(req: Request, res: Response, next: NextFuncti
 
 export async function getPathway(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const pathway = await prisma.pathway.findUnique({
       where: { id },
@@ -62,7 +62,7 @@ export async function createPathway(req: Request, res: Response, next: NextFunct
 
 export async function updatePathway(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { name } = req.body;
 
     const updated = await prisma.pathway.update({
