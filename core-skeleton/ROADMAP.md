@@ -58,7 +58,7 @@ Stabilize the API surface before any frontend work begins.
 ### Recommended Cursor Prompt
 
 ```
-Implement Phase 1 (Backend Cleanup) from Core Skeleton/ROADMAP.md.
+Implement Phase 1 (Backend Cleanup) from core-skeleton/ROADMAP.md.
 Read the checklist items, fix each one, and run `npm test` after to
 confirm nothing is broken. Follow the product scope constraint in
 ROADMAP.md (oncology focus).
@@ -105,7 +105,7 @@ Provide realistic oncology demo data so the frontend is immediately useful after
 ### Recommended Cursor Prompt
 
 ```
-Implement Phase 2 (Seed Script) from Core Skeleton/ROADMAP.md.
+Implement Phase 2 (Seed Script) from core-skeleton/ROADMAP.md.
 Create prisma/seed.ts with the oncology demo data described in the
 checklist. Register it in package.json and verify with
 `npx prisma db seed`. Follow the product scope constraint
@@ -121,7 +121,7 @@ Minimal React UI for a clinic admin to view the queue, onboard patients, and vie
 ### Checklist
 
 - [ ] **Scaffold Vite + React project**
-  - Create `client/` directory inside `Core Skeleton/`.
+  - Create `client/` directory inside `core-skeleton/`.
   - Files: `client/` (new directory), `client/package.json`, `client/vite.config.ts`, `client/index.html`, `client/src/`
 
 - [ ] **Configure dev proxy**
@@ -156,7 +156,7 @@ Minimal React UI for a clinic admin to view the queue, onboard patients, and vie
 ### Recommended Cursor Prompt
 
 ```
-Implement Phase 3 (Frontend Scaffold) from Core Skeleton/ROADMAP.md.
+Implement Phase 3 (Frontend Scaffold) from core-skeleton/ROADMAP.md.
 Create a Vite + React app in client/ with the 3 MVP pages described.
 Use Tailwind CSS. Proxy /api to localhost:3000. All labels and examples
 must be oncology-specific per the product scope constraint.
@@ -209,7 +209,7 @@ Backfill test coverage for all CRUD endpoints and edge cases.
 ### Recommended Cursor Prompt
 
 ```
-Implement Phase 4 (Missing Tests) from Core Skeleton/ROADMAP.md.
+Implement Phase 4 (Missing Tests) from core-skeleton/ROADMAP.md.
 Add tests for all PATCH, GET-by-id, list-with-filters, and validation
 edge cases listed in the checklist. Run `npm test` to confirm all pass.
 ```
@@ -243,10 +243,7 @@ Make the app deployable as a single container.
   - Install `express-rate-limit`, apply to API routes.
   - Files: `src/app.ts`, `package.json`
 
-- [ ] **Consider renaming `Core Skeleton/`**
-  - The space in the directory name causes friction in CI, Docker COPY, and shell scripts.
-  - Rename to `core-skeleton/` or move contents to repo root.
-  - Files: all paths, CI config, README
+- [x] ~~**Rename `Core Skeleton/` to `core-skeleton/`**~~ (done)
 
 - [ ] **Document required environment variables**
   - Create `.env.example` listing `DATABASE_URL`, `PORT`, `NODE_ENV`.
@@ -263,7 +260,7 @@ Make the app deployable as a single container.
 ### Recommended Cursor Prompt
 
 ```
-Implement Phase 5 (Deployment Prep) from Core Skeleton/ROADMAP.md.
+Implement Phase 5 (Deployment Prep) from core-skeleton/ROADMAP.md.
 Add build/start scripts, Dockerfile, structured logging, rate limiting,
 and an extended health check. Run `npm run build && npm start` to verify.
 ```

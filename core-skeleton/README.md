@@ -6,7 +6,7 @@ Run API Locally
 
 Start the API server:
 
-- cd core skeleton
+- cd core-skeleton
 - npm run dev
 
 The API will run at:
@@ -69,7 +69,7 @@ Quick Local Testing Setup
 
 When opening a new terminal session, run:
 
-- cd "/Users/trace/Documents/GitHub/Healthcare-app/Healthcare-app/Core Skeleton" API="http://localhost:3000"
+- cd core-skeleton && API="http://localhost:3000"
 
 You can then test endpoints easily with curl:
 
@@ -81,5 +81,5 @@ Example:
 
 End to end test
 
-- cd core skeleton
+- cd core-skeleton
 - npx prisma studio
