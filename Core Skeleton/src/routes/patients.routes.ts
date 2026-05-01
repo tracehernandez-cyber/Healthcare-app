@@ -5,6 +5,16 @@ import * as Patients from "../controllers/patients.controller";
 
 export const patientsRouter = Router();
 
+patientsRouter.post(
+  "/",
+  validate({ query: z.object({ clinicId: z.string().min(1) }), body: z.object({
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    phone: z.string().min(7),
+  }) }),
+  Patients.createPatient
+);
+
 patientsRouter.get(
   "/",
   validate({ query: z.object({ clinicId: z.string().min(1) }) }),

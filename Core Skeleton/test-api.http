@@ -1,5 +1,9 @@
 @baseUrl = http://localhost:3000/api
 
+### ====================
+### Clinics
+### ====================
+
 ### Create clinic
 # @name createClinic
 POST {{baseUrl}}/clinics
@@ -11,19 +15,6 @@ Content-Type: application/json
 
 ### Get clinic
 GET {{baseUrl}}/clinics/{{createClinic.response.body.$.id}}
-
-### Create pathway
-# @name createPathway
-POST {{baseUrl}}/pathways
-Content-Type: application/json
-
-{
-  "clinicId": "{{createClinic.response.body.$.id}}",
-  "name": "Knee Recovery Pathway"
-}
-
-### Get pathway
-GET {{baseUrl}}/pathways/{{createPathway.response.body.$.id}}
 
 ### List clinics
 GET {{baseUrl}}/clinics
@@ -59,6 +50,24 @@ Content-Type: application/json
   "name": "Should fail"
 }
 
+
+### ====================
+### Pathways
+### ====================
+
+### Create pathway
+# @name createPathway
+POST {{baseUrl}}/pathways
+Content-Type: application/json
+
+{
+  "clinicId": "{{createClinic.response.body.$.id}}",
+  "name": "Knee Recovery Pathway"
+}
+
+### Get pathway
+GET {{baseUrl}}/pathways/{{createPathway.response.body.$.id}}
+
 ### List pathways
 GET {{baseUrl}}/pathways
 
@@ -72,6 +81,130 @@ Content-Type: application/json
 {
   "name": "Knee Recovery Pathway Updated"
 }
+
+
+### ====================
+### Patients
+### ====================
+
+### Create patient
+# @name createPatient
+POST {{baseUrl}}/patients
+Content-Type: application/json
+
+{
+  "email": "patient2@example.com",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "phone": "707-555-2222"
+}
+
+### Get created patient
+GET {{baseUrl}}/patients/{{createPatient.response.body.$.id}}
+
+### Get onboarded patient
+GET {{baseUrl}}/patients/{{onboardPatient.response.body.$.patient.id}}
+
+### List patients
+GET {{baseUrl}}/patients
+
+### Update patient
+PATCH {{baseUrl}}/patients/{{createPatient.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "firstName": "Jane Updated",
+  "lastName": "Doe Updated",
+  "phone": "707-555-3333"
+}
+
+### Missing patient
+GET {{baseUrl}}/patients/not-a-real-id
+
+### Invalid patient patch - empty body
+PATCH {{baseUrl}}/patients/{{createPatient.response.body.$.id}}
+Content-Type: application/json
+
+{}
+
+
+### ====================
+### Enrollments
+### ====================
+
+### Create enrollment
+# @name createEnrollment
+POST {{baseUrl}}/enrollments
+Content-Type: application/json
+
+{
+  "clinicId": "{{createClinic.response.body.$.id}}",
+  "pathwayId": "{{createPathway.response.body.$.id}}",
+  "patientId": "{{onboardPatient.response.body.$.patient.id}}",
+  "status": "active"
+}
+
+### Get enrollment
+GET {{baseUrl}}/enrollments/{{createEnrollment.response.body.$.id}}
+
+### List enrollments
+GET {{baseUrl}}/enrollments
+
+### List enrollments by patient
+GET {{baseUrl}}/enrollments?patientId={{onboardPatient.response.body.$.patient.id}}
+
+### List enrollments by clinic
+GET {{baseUrl}}/enrollments?clinicId={{createClinic.response.body.$.id}}
+
+### Update enrollment
+PATCH {{baseUrl}}/enrollments/{{createEnrollment.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+### Missing enrollment
+GET {{baseUrl}}/enrollments/not-a-real-id
+
+
+### ====================
+### Users
+### ====================
+
+### Create user
+# @name createUser
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "staff1@example.com",
+  "firstName": "Alex",
+  "lastName": "Smith",
+  "role": "care_coordinator",
+  "clinicId": "{{createClinic.response.body.$.id}}"
+}
+
+### Get user
+GET {{baseUrl}}/users/{{createUser.response.body.$.id}}
+
+### List users
+GET {{baseUrl}}/users
+
+### Update user
+PATCH {{baseUrl}}/users/{{createUser.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "firstName": "Alex Updated",
+  "lastName": "Smith Updated",
+  "role": "admin"
+}
+
+
+### ====================
+### Workflows
+### ====================
 
 ### Onboard patient
 # @name onboardPatient
