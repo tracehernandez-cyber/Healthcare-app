@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import { ok, fail } from "../lib/http";
 
 export async function onboard(req: Request, res: Response, next: NextFunction) {
   try {
@@ -46,15 +47,13 @@ export async function onboard(req: Request, res: Response, next: NextFunction) {
       return { clinic, user, patient: createdPatient, enrollment };
     });
 
-    res.status(201).json(result);
+    ok(res, result, 201);
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2002"
     ) {
-      return res.status(409).json({
-        error: "A user with that email already exists",
-      });
+      return fail(res, "A user with that email already exists", 409);
     }
 
     next(err);
@@ -77,10 +76,10 @@ export async function patientDashboard(req: Request, res: Response, next: NextFu
     });
 
     if (!patient) {
-      return res.status(404).json({ error: "Patient not found" });
+      return fail(res, "Patient not found", 404);
     }
 
-    res.json({
+    ok(res, {
       patient,
       enrollments: patient.enrollments,
     });
@@ -105,7 +104,8 @@ export async function clinicQueue(req: Request, res: Response, next: NextFunctio
       },
     });
 
-    res.json(
+    ok(
+      res,
       queue.map((e) => ({
         enrollmentId: e.id,
         status: e.status,

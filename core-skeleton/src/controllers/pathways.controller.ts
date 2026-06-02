@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import { ok, fail } from "../lib/http";
 
 export async function listPathways(req: Request, res: Response, next: NextFunction) {
   try {
@@ -11,7 +12,7 @@ export async function listPathways(req: Request, res: Response, next: NextFuncti
       orderBy: { createdAt: "desc" },
     });
 
-    res.json(pathways);
+    ok(res, pathways);
   } catch (err) {
     next(err);
   }
@@ -26,10 +27,10 @@ export async function getPathway(req: Request, res: Response, next: NextFunction
     });
 
     if (!pathway) {
-      return res.status(404).json({ error: "Pathway not found" });
+      return fail(res, "Pathway not found", 404);
     }
 
-    res.json(pathway);
+    ok(res, pathway);
   } catch (err) {
     next(err);
   }
@@ -44,7 +45,7 @@ export async function createPathway(req: Request, res: Response, next: NextFunct
     });
 
     if (!clinic) {
-      return res.status(404).json({ error: "Clinic not found" });
+      return fail(res, "Clinic not found", 404);
     }
 
     const pathway = await prisma.pathway.create({
@@ -54,7 +55,7 @@ export async function createPathway(req: Request, res: Response, next: NextFunct
       },
     });
 
-    res.status(201).json(pathway);
+    ok(res, pathway, 201);
   } catch (err) {
     next(err);
   }
@@ -72,13 +73,13 @@ export async function updatePathway(req: Request, res: Response, next: NextFunct
       },
     });
 
-    res.json(updated);
+    ok(res, updated);
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2025"
     ) {
-      return res.status(404).json({ error: "Pathway not found" });
+      return fail(res, "Pathway not found", 404);
     }
 
     next(err);
