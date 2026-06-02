@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { ok, fail } from "../lib/http";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function listUsers(req: Request, res: Response, next: NextFunction) {
   try {
@@ -20,7 +20,8 @@ export async function listUsers(req: Request, res: Response, next: NextFunction)
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid user id", 400);
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -38,7 +39,8 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
 
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid user id", 400);
     const { email, role, status } = req.body;
 
     const updated = await prisma.user.update({

@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { ok, fail } from "../lib/http";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function listPathways(req: Request, res: Response, next: NextFunction) {
   try {
@@ -20,7 +20,8 @@ export async function listPathways(req: Request, res: Response, next: NextFuncti
 
 export async function getPathway(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid pathway id", 400);
 
     const pathway = await prisma.pathway.findUnique({
       where: { id },
@@ -63,7 +64,8 @@ export async function createPathway(req: Request, res: Response, next: NextFunct
 
 export async function updatePathway(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid pathway id", 400);
     const { name } = req.body;
 
     const updated = await prisma.pathway.update({

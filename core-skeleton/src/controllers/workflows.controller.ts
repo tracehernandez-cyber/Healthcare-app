@@ -1,13 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { ok, fail } from "../lib/http";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function onboard(req: Request, res: Response, next: NextFunction) {
   try {
     const { clinicId, clinicName, pathwayId, patient } = req.body;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const clinic = clinicId
         ? await tx.clinic.findUnique({ where: { id: clinicId } })
         : await tx.clinic.create({ data: { name: clinicName } });
@@ -62,7 +62,8 @@ export async function onboard(req: Request, res: Response, next: NextFunction) {
 
 export async function patientDashboard(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid patient id", 400);
 
     const patient = await prisma.patient.findUnique({
       where: { id },
@@ -90,7 +91,8 @@ export async function patientDashboard(req: Request, res: Response, next: NextFu
 
 export async function clinicQueue(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id: clinicId } = req.params;
+    const clinicId = paramValue(req.params.id);
+    if (!clinicId) return fail(res, "Invalid clinic id", 400);
 
     const queue = await prisma.enrollment.findMany({
       where: {

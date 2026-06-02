@@ -1,11 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { ok, fail } from "../lib/http";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function createPatient(req: Request, res: Response, next: NextFunction) {
   try {
-    const { clinicId } = req.query as { clinicId: string };
+    const clinicId = paramValue(req.query.clinicId);
+    if (!clinicId) return fail(res, "Invalid clinic id", 400);
     const { firstName, lastName, phone } = req.body;
 
     const user = await prisma.user.create({
@@ -36,7 +37,8 @@ export async function createPatient(req: Request, res: Response, next: NextFunct
 
 export async function listPatients(req: Request, res: Response, next: NextFunction) {
   try {
-    const { clinicId } = req.query as { clinicId: string };
+    const clinicId = paramValue(req.query.clinicId);
+    if (!clinicId) return fail(res, "Invalid clinic id", 400);
 
     const patients = await prisma.patient.findMany({
       where: { clinicId },
@@ -52,7 +54,8 @@ export async function listPatients(req: Request, res: Response, next: NextFuncti
 
 export async function getPatient(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid patient id", 400);
 
     const patient = await prisma.patient.findUnique({
       where: { id },
@@ -71,7 +74,8 @@ export async function getPatient(req: Request, res: Response, next: NextFunction
 
 export async function updatePatient(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid patient id", 400);
     const { firstName, lastName, phone } = req.body;
 
     const updated = await prisma.patient.update({

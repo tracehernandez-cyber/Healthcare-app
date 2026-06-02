@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { ok, fail } from "../lib/http";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function listEnrollments(req: Request, res: Response, next: NextFunction) {
   try {
@@ -30,7 +30,8 @@ export async function listEnrollments(req: Request, res: Response, next: NextFun
 
 export async function getEnrollment(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid enrollment id", 400);
 
     const enrollment = await prisma.enrollment.findUnique({
       where: { id },
@@ -52,7 +53,8 @@ export async function getEnrollment(req: Request, res: Response, next: NextFunct
 
 export async function updateEnrollment(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid enrollment id", 400);
     const { status } = req.body;
 
     const updated = await prisma.enrollment.update({

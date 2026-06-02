@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { ok, fail } from "../lib/http";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function listClinics(_req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,7 +17,8 @@ export async function listClinics(_req: Request, res: Response, next: NextFuncti
 
 export async function getClinic(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid clinic id", 400);
 
     const clinic = await prisma.clinic.findUnique({
       where: { id },
@@ -49,7 +50,8 @@ export async function createClinic(req: Request, res: Response, next: NextFuncti
 
 export async function updateClinic(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid clinic id", 400);
     const { name } = req.body;
 
     const clinic = await prisma.clinic.update({
@@ -74,7 +76,8 @@ export async function updateClinic(req: Request, res: Response, next: NextFuncti
 
 export async function clinicQueue(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id: clinicId } = req.params;
+    const clinicId = paramValue(req.params.id);
+    if (!clinicId) return fail(res, "Invalid clinic id", 400);
 
     const queue = await prisma.enrollment.findMany({
       where: {
