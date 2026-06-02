@@ -33,7 +33,7 @@ enrollmentsRouter.patch(
       id: z.string().min(1),
     }),
     body: z.object({
-      status: z.enum(["ACTIVE", "PAUSED", "COMPLETED", "CANCELLED"]).optional(),
+      status: z.enum(["ACTIVE", "PAUSED", "COMPLETED"]).optional(),
     }).refine((b) => Object.keys(b).length > 0, { message: "No fields provided" }),
   }),
   Enrollments.updateEnrollment
