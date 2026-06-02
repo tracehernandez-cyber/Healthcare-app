@@ -24,8 +24,10 @@ This is a **Healthcare App** — a postoperative educational backend API for onc
 ### Key gotchas
 
 - **No `.env` file is committed**: You must create `core-skeleton/.env` with at least `DATABASE_URL=postgresql://devuser:devpass@localhost:5432/healthcare_dev`.
-- **PostgreSQL must be running** before starting the dev server or running migrations. Start it with `pg_ctlcluster 16 main start`.
-- **Prisma migrations** must be applied before the API works: `npx prisma migrate dev --schema=prisma/schema.prisma` (from `core-skeleton/`).
+- **PostgreSQL on a fresh VM**: If `pg_lsclusters` is missing, install with `sudo apt-get install -y postgresql-16`, then start with `sudo pg_ctlcluster 16 main start`. Create the dev role/database once (see `DATABASE_URL` above): user `devuser`, password `devpass`, database `healthcare_dev`.
+- **PostgreSQL must be running** before starting the dev server or running migrations. Start it with `sudo pg_ctlcluster 16 main start` if the cluster is not already `online`.
+- **Prisma migrations** must be applied before the API or tests work. From `core-skeleton/`, run `npm run prisma:generate` then `npx prisma migrate deploy --schema=prisma/schema.prisma` (non-interactive). Use `npm run prisma:migrate` only when you need to create new migrations interactively.
+- **Dev server in tmux**: Long-running `npm run dev` should run in a named tmux session (e.g. `healthcare-api-dev`) so it survives background agent sessions.
 - **No lint or build scripts** exist yet in `package.json`. Tests run via `npm test` (Vitest).
 - **No frontend** — this is an API-only backend at this stage (see Phase 3 in ROADMAP.md).
 
