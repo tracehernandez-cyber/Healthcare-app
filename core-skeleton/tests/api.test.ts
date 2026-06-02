@@ -70,11 +70,11 @@ describe("Healthcare API", () => {
     it("creates a pathway linked to the clinic", async () => {
       const res = await request(app)
         .post("/api/pathways")
-        .send({ clinicId, name: "Hip Recovery" });
+        .send({ clinicId, name: "Mastectomy Recovery" });
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toMatchObject({ clinicId, name: "Hip Recovery" });
+      expect(res.body.data).toMatchObject({ clinicId, name: "Mastectomy Recovery" });
       expect(res.body.data.id).toBeDefined();
       pathwayId = res.body.data.id;
     });
@@ -151,7 +151,7 @@ describe("Healthcare API", () => {
       expect(res.body.data.patient.id).toBe(patientId);
       expect(res.body.data.patient.firstName).toBe("Alice");
       expect(res.body.data.enrollments).toHaveLength(1);
-      expect(res.body.data.enrollments[0].pathway.name).toBe("Hip Recovery");
+      expect(res.body.data.enrollments[0].pathway.name).toBe("Mastectomy Recovery");
     });
 
     it("returns 404 for unknown patient", async () => {
@@ -180,7 +180,7 @@ describe("Healthcare API", () => {
       );
       expect(entry).toBeDefined();
       expect(entry.patientName).toBe("Alice Smith");
-      expect(entry.pathwayName).toBe("Hip Recovery");
+      expect(entry.pathwayName).toBe("Mastectomy Recovery");
       expect(entry.status).toBe("ACTIVE");
     });
 
