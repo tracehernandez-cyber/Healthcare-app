@@ -110,6 +110,7 @@ export async function clinicQueue(req: Request, res: Response, next: NextFunctio
       res,
       queue.map((e) => ({
         enrollmentId: e.id,
+        patientId: e.patientId,
         status: e.status,
         createdAt: e.createdAt,
         patientName: `${e.patient.firstName ?? ""} ${e.patient.lastName ?? ""}`.trim(),
