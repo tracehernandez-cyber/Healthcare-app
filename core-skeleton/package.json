@@ -7,7 +7,9 @@
     "dev": "tsx watch src/index.ts",
     "prisma:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "smoke:api": "bash scripts/smoke-test-api.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
