@@ -179,6 +179,7 @@ describe("Healthcare API", () => {
         (e: { enrollmentId: string }) => e.enrollmentId === enrollmentId
       );
       expect(entry).toBeDefined();
+      expect(entry.patientId).toBe(patientId);
       expect(entry.patientName).toBe("Alice Smith");
       expect(entry.pathwayName).toBe("Mastectomy Recovery");
       expect(entry.status).toBe("ACTIVE");

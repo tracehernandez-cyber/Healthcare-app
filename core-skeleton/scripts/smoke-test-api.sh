@@ -76,6 +76,9 @@ main() {
     fail "Queue empty for $SEED_CLINIC_NAME — expected ACTIVE enrollments (run: npx prisma db seed)"
   fi
   pass "GET /api/workflows/clinics/:id/queue ($queue_len ACTIVE item(s))"
+  echo "$queue" | jq -e '.data[0].patientId != null and (.data[0].patientId | type) == "string"' >/dev/null \
+    || fail "Queue entries must include patientId"
+  pass "Queue rows include patientId"
 
   # Patient dashboard (seeded Maria Garcia)
   local patients

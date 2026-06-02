@@ -136,6 +136,7 @@ Unhandled exceptions use the same failure envelope; `error.message` is the excep
 ```json
 {
   "enrollmentId": "cuid",
+  "patientId": "cuid",
   "status": "ACTIVE",
   "createdAt": "ISO-8601",
   "patientName": "Maria Garcia",
@@ -601,7 +602,7 @@ HTTP `409`.
 2. User selects a clinic → store `clinicId`.
 3. `GET /api/workflows/clinics/:clinicId/queue` — render table of ACTIVE patients (patientName, pathwayName, status, createdAt).
 
-**UI assumptions:** Queue rows do not include `patientId`; link to patient detail requires a separate lookup (`GET /api/patients?clinicId=`) or storing ids from onboard.
+**UI assumptions:** Each queue row includes `patientId` for links to `GET /api/workflows/patients/:id/dashboard`.
 
 ---
 
@@ -687,7 +688,6 @@ Browser requests from `http://localhost:5173` are allowed (`credentials: true`) 
 | **No authentication** | All endpoints are public; no `Authorization` header or session. Frontend cannot model real clinic-staff login yet. |
 | **No `error.code`** | Only `error.message` + optional `error.details`. Consider adding stable codes later for i18n and branching (documented here; not implemented). |
 | **Duplicate queue endpoints** | `GET /api/clinics/:id/queue` and `GET /api/workflows/clinics/:id/queue` return the same shape. Frontend should standardize on the **workflows** path. |
-| **Queue rows lack `patientId`** | Dashboard table must match by name or prefetch patients to build links to `/patients/:id`. |
 | **`GET /api/patients` requires `clinicId`** | No global patient search; clinic must be selected first. |
 | **No `POST /api/enrollments`** | Onboarding must use `/api/workflows/onboard` only. |
 | **Dashboard duplicate enrollments** | Response includes both `data.patient.enrollments` and `data.enrollments` (same data). Frontend can use either; pick one convention. |
