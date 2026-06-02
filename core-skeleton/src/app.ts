@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import cors from "cors";
 import { ok, fail } from "./lib/http";
@@ -45,6 +47,27 @@ app.use("/api/patients", patientsRouter);
 app.use("/api/pathways", pathwaysRouter);
 app.use("/api/enrollments", enrollmentsRouter);
 app.use("/api/workflows", workflowsRouter);
+
+const clientDist = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../client/dist"
+);
+app.use(express.static(clientDist));
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith("/api") ||
+    req.path === "/health" ||
+    req.path === "/__debug"
+  ) {
+    return next();
+  }
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return next();
+  }
+  res.sendFile(path.join(clientDist, "index.html"), (err) => {
+    if (err) next();
+  });
+});
 
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);
