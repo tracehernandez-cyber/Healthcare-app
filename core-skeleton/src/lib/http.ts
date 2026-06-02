@@ -10,6 +10,11 @@ export function paramValue(value: unknown): string | undefined {
   return undefined;
 }
 
+export type ApiErrorBody = {
+  message: string;
+  details?: unknown;
+};
+
 export function ok<T>(res: Response, data: T, status = 200) {
   return res.status(status).json({
     success: true,
@@ -18,10 +23,17 @@ export function ok<T>(res: Response, data: T, status = 200) {
   });
 }
 
-export function fail(res: Response, error: string, status = 400) {
+export function fail(
+  res: Response,
+  error: string | ApiErrorBody,
+  status = 400
+) {
+  const errorBody: ApiErrorBody =
+    typeof error === "string" ? { message: error } : error;
+
   return res.status(status).json({
     success: false,
     data: null,
-    error,
+    error: errorBody,
   });
 }

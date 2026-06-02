@@ -9,6 +9,22 @@ let pathwayId: string;
 let patientId: string;
 let enrollmentId: string;
 
+function expectFailure(
+  body: {
+    success: boolean;
+    data: unknown;
+    error: { message: string; details?: unknown };
+  },
+  messagePattern?: RegExp
+) {
+  expect(body.success).toBe(false);
+  expect(body.data).toBeNull();
+  expect(body.error).toMatchObject({ message: expect.any(String) });
+  if (messagePattern) {
+    expect(body.error.message).toMatch(messagePattern);
+  }
+}
+
 describe("Healthcare API", () => {
   // ── Health ────────────────────────────────────────────────
   describe("GET /health", () => {
@@ -44,7 +60,8 @@ describe("Healthcare API", () => {
         .send({ name: "" });
 
       expect(res.status).toBe(400);
-      expect(res.body.success).toBe(false);
+      expectFailure(res.body, /invalid request/i);
+      expect(res.body.error.details).toBeDefined();
     });
   });
 
@@ -68,8 +85,7 @@ describe("Healthcare API", () => {
         .send({ clinicId: "does-not-exist", name: "Nope" });
 
       expect(res.status).toBe(404);
-      expect(res.body.success).toBe(false);
-      expect(res.body.error).toMatch(/clinic not found/i);
+      expectFailure(res.body, /clinic not found/i);
     });
   });
 
@@ -119,8 +135,7 @@ describe("Healthcare API", () => {
         });
 
       expect(res.status).toBe(409);
-      expect(res.body.success).toBe(false);
-      expect(res.body.error).toMatch(/already exists/i);
+      expectFailure(res.body, /already exists/i);
     });
   });
 
@@ -144,7 +159,7 @@ describe("Healthcare API", () => {
         "/api/workflows/patients/nonexistent/dashboard"
       );
       expect(res.status).toBe(404);
-      expect(res.body.success).toBe(false);
+      expectFailure(res.body, /patient not found/i);
     });
   });
 
