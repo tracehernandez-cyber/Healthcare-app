@@ -1,12 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import { ok, fail, paramValue } from "../lib/http";
 
 export async function onboard(req: Request, res: Response, next: NextFunction) {
   try {
     const { clinicId, clinicName, pathwayId, patient } = req.body;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const clinic = clinicId
         ? await tx.clinic.findUnique({ where: { id: clinicId } })
         : await tx.clinic.create({ data: { name: clinicName } });
@@ -46,15 +47,13 @@ export async function onboard(req: Request, res: Response, next: NextFunction) {
       return { clinic, user, patient: createdPatient, enrollment };
     });
 
-    res.status(201).json(result);
+    ok(res, result, 201);
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2002"
     ) {
-      return res.status(409).json({
-        error: "A user with that email already exists",
-      });
+      return fail(res, "A user with that email already exists", 409);
     }
 
     next(err);
@@ -63,7 +62,8 @@ export async function onboard(req: Request, res: Response, next: NextFunction) {
 
 export async function patientDashboard(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = paramValue(req.params.id);
+    if (!id) return fail(res, "Invalid patient id", 400);
 
     const patient = await prisma.patient.findUnique({
       where: { id },
@@ -77,10 +77,10 @@ export async function patientDashboard(req: Request, res: Response, next: NextFu
     });
 
     if (!patient) {
-      return res.status(404).json({ error: "Patient not found" });
+      return fail(res, "Patient not found", 404);
     }
 
-    res.json({
+    ok(res, {
       patient,
       enrollments: patient.enrollments,
     });
@@ -91,7 +91,8 @@ export async function patientDashboard(req: Request, res: Response, next: NextFu
 
 export async function clinicQueue(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id: clinicId } = req.params;
+    const clinicId = paramValue(req.params.id);
+    if (!clinicId) return fail(res, "Invalid clinic id", 400);
 
     const queue = await prisma.enrollment.findMany({
       where: {
@@ -105,7 +106,8 @@ export async function clinicQueue(req: Request, res: Response, next: NextFunctio
       },
     });
 
-    res.json(
+    ok(
+      res,
       queue.map((e) => ({
         enrollmentId: e.id,
         status: e.status,

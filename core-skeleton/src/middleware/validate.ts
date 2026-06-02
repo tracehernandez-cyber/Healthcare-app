@@ -24,12 +24,11 @@ export function validate(schema: {
       next();
     } catch (err) {
       if (err instanceof ZodError) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          error: "Invalid request",
-          details: err.issues,
-        });
+        return fail(
+          res,
+          { message: "Invalid request", details: err.issues },
+          400
+        );
       }
 
       console.error(err);
