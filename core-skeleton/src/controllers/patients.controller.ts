@@ -1,6 +1,33 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 
+export async function createPatient(req: Request, res: Response) {
+  const { clinicId } = req.query as { clinicId: string };
+  const { firstName, lastName, phone } = req.body;
+
+  const user = await prisma.user.create({
+    data: {
+      clinicId,
+      email: `patient-${Date.now()}@example.com`,
+      role: "PATIENT",
+      status: "INVITED",
+    },
+  });
+
+  const patient = await prisma.patient.create({
+    data: {
+      clinicId,
+      userId: user.id,
+      firstName,
+      lastName,
+      phone,
+    },
+    include: { user: true },
+  });
+
+  res.status(201).json(patient);
+}
+
 export async function listPatients(req: Request, res: Response) {
   const { clinicId } = req.query as any;
 
