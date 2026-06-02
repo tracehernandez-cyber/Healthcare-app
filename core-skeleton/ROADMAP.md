@@ -114,6 +114,91 @@ checklist. Register it in package.json and verify with
 
 ---
 
+---
+
+## Phase 2.5 — API Contract Review
+
+Document and verify the backend API contract before frontend work begins.
+
+The goal of this phase is to make the React frontend easy to build by clearly defining every endpoint, request body, response body, error shape, and expected workflow. Do not add frontend code in this phase.
+
+### Checklist
+
+- [ ] **Create API contract documentation**
+  - Create `docs/API_CONTRACT.md`.
+  - Document every route currently defined in `src/routes/`.
+  - Files: `docs/API_CONTRACT.md` (new)
+
+- [ ] **Document standard response envelope**
+  - Every endpoint should use the same shape:
+    - Success: `{ success: true, data: ... , error: null }`
+    - Failure: `{ success: false, data: null, error: { code, message, details? } }`
+  - Note any endpoint that does not currently follow this pattern.
+  - Files: `docs/API_CONTRACT.md`
+
+- [ ] **Document core resource endpoints**
+  - Clinics
+  - Pathways
+  - Users
+  - Patients
+  - Enrollments
+  - Workflow routes
+  - Health route
+  - Include method, path, purpose, request body, response body, and common errors.
+  - Files: `docs/API_CONTRACT.md`
+
+- [ ] **Document frontend-facing workflows**
+  - Clinic dashboard flow:
+    - `GET /api/clinics`
+    - select clinic
+    - `GET /api/workflows/clinics/:id/queue`
+  - Onboard patient flow:
+    - get clinics/pathways
+    - submit `POST /api/workflows/onboard`
+    - confirm enrollment created
+  - Patient detail flow:
+    - `GET /api/workflows/patients/:id/dashboard`
+  - Files: `docs/API_CONTRACT.md`
+
+- [ ] **Add example requests and responses**
+  - Use oncology-only examples from the seed data.
+  - Include at least one success and one error example for each major resource type.
+  - Avoid orthopedic, physical therapy, or general surgery examples.
+  - Files: `docs/API_CONTRACT.md`
+
+- [ ] **Create manual API smoke-test script**
+  - Create `scripts/smoke-test-api.sh`.
+  - Script should check:
+    - `/health`
+    - `GET /api/clinics`
+    - one clinic queue endpoint
+    - one patient dashboard endpoint if seeded data exists
+  - Files: `scripts/smoke-test-api.sh` (new)
+
+- [ ] **Add smoke-test command to `package.json`**
+  - Recommended script:
+    - `"smoke:api": "bash scripts/smoke-test-api.sh"`
+  - Files: `package.json`
+
+- [ ] **Identify frontend blockers**
+  - Add a section in `docs/API_CONTRACT.md` called `Frontend Blockers / Notes`.
+  - List anything that may affect Phase 3, such as missing endpoints, inconsistent response shapes, unclear IDs, missing filters, or missing seeded data.
+  - Files: `docs/API_CONTRACT.md`
+
+### Acceptance Criteria
+
+- `docs/API_CONTRACT.md` exists and documents every route in `src/routes/`.
+- Every documented endpoint includes method, path, purpose, request body if applicable, response body, and common errors.
+- All examples are oncology-specific.
+- The documented response shape matches the actual API behavior after Phase 1.
+- `npm run smoke:api` runs against the local dev server and verifies the basic seeded workflow.
+- Any missing or inconsistent backend behavior needed for the frontend is listed under `Frontend Blockers / Notes`.
+- No React/Vite/frontend code is added in this phase.
+
+### Recommended Cursor Prompt
+
+---
+
 ## Phase 3 — Frontend Scaffold
 
 Minimal React UI for a clinic admin to view the queue, onboard patients, and view patient detail.
