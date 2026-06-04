@@ -2016,7 +2016,7 @@ This phase should only happen after internal notification records, auth, clinic 
 ### Recommended Cursor Prompt
 
 ```txt
-Implement Phase 11 (External Communications) from core-skeleton/ROADMAP.md.
+Implement Phase 12 (External Communications) from core-skeleton/ROADMAP.md.
 
 Connect the existing internal notification framework to real provider services while keeping provider-specific code isolated.
 
@@ -2046,3 +2046,579 @@ Run:
 - npm test
 - npm run typecheck
 ```
+---
+
+# Phase 13 — Reporting & Analytics
+
+Build analytics and reporting capabilities for clinicians, clinic admins, and future pilot customers.
+
+This phase focuses on operational visibility into patient engagement, pathway performance, clinician workload, and notification effectiveness.
+
+## Checklist
+
+* [ ] **Create analytics service**
+
+  * Create:
+
+    * `src/services/analytics.service.ts`
+  * Support aggregation for:
+
+    * active patients
+    * active enrollments
+    * completed enrollments
+    * pathway completion rates
+    * missed check-ins
+    * completed check-ins
+    * active notifications
+    * failed notifications
+
+* [ ] **Create analytics routes**
+
+  * Create:
+
+    * `GET /api/analytics/overview`
+    * `GET /api/analytics/pathways`
+    * `GET /api/analytics/notifications`
+    * `GET /api/analytics/check-ins`
+    * `GET /api/analytics/patients`
+
+  * Optional filters:
+
+    * `clinicId`
+    * `startDate`
+    * `endDate`
+    * `pathwayTemplateId`
+
+  * Files:
+
+    * `src/routes/analytics.routes.ts`
+    * `src/controllers/analytics.controller.ts`
+
+* [ ] **Add pathway analytics**
+
+  * Track:
+
+    * enrollment count
+    * completion count
+    * completion percentage
+    * average completion time
+    * abandonment count
+    * abandonment percentage
+
+* [ ] **Add check-in analytics**
+
+  * Track:
+
+    * completed check-ins
+    * missed check-ins
+    * overdue check-ins
+    * average response time
+
+* [ ] **Add notification analytics**
+
+  * Track:
+
+    * sent notifications
+    * failed notifications
+    * opened notifications
+    * responded notifications
+
+  * Group by:
+
+    * IN_APP
+    * PUSH
+    * EMAIL
+    * SMS
+
+* [ ] **Create analytics dashboard page**
+
+  * Route:
+
+    * `/analytics`
+
+  * Files:
+
+    * `client/src/pages/AnalyticsPage.tsx`
+
+* [ ] **Create analytics components**
+
+  * Files:
+
+    * `client/src/components/AnalyticsSummaryCards.tsx`
+    * `client/src/components/PathwayMetricsTable.tsx`
+    * `client/src/components/NotificationMetricsTable.tsx`
+    * `client/src/components/CheckInMetricsTable.tsx`
+
+* [ ] **Add analytics tests**
+
+  * Verify:
+
+    * analytics endpoints return data
+    * clinic filtering works
+    * cross-clinic analytics are blocked
+
+## Acceptance Criteria
+
+* Analytics endpoints return meaningful data.
+* Analytics respect clinic-level access controls.
+* Clinicians can view engagement metrics.
+* Pathway completion rates are calculated correctly.
+* Notification metrics are available.
+* Frontend dashboard displays analytics.
+* `npm test` passes.
+* `npm run typecheck` passes.
+* `cd client && npm run build` passes.
+
+## Recommended Cursor Prompt
+
+```txt
+Implement Phase 13 (Reporting & Analytics) from ROADMAP.md.
+
+Create analytics services, controllers, routes, and frontend dashboards.
+
+Add analytics for:
+- pathway completion
+- pathway adherence
+- missed check-ins
+- notification performance
+- clinician workload
+
+Create:
+- GET /api/analytics/overview
+- GET /api/analytics/pathways
+- GET /api/analytics/notifications
+- GET /api/analytics/check-ins
+- GET /api/analytics/patients
+
+Preserve clinic-scoped access controls.
+
+Run:
+- npm test
+- npm run typecheck
+- cd client && npm run build
+```
+
+---
+
+# Phase 14 — Admin Platform & Pathway Builder
+
+Create a complete administrative experience that allows clinics to manage users, pathways, notification templates, and clinic settings without modifying code.
+
+## Checklist
+
+* [ ] **Create admin routes**
+
+  * Create:
+
+    * `GET /api/admin/users`
+    * `POST /api/admin/users`
+    * `PATCH /api/admin/users/:id`
+    * `DELETE /api/admin/users/:id`
+
+* [ ] **Create clinic management routes**
+
+  * Create:
+
+    * `GET /api/admin/clinics`
+    * `PATCH /api/admin/clinics/:id`
+
+* [ ] **Create notification template model**
+
+  * Create:
+
+    * `NotificationTemplate`
+
+  * Fields:
+
+    * name
+    * channel
+    * subject
+    * body
+    * active
+
+* [ ] **Create notification template routes**
+
+  * Create:
+
+    * `GET /api/notification-templates`
+    * `POST /api/notification-templates`
+    * `PATCH /api/notification-templates/:id`
+    * `DELETE /api/notification-templates/:id`
+
+* [ ] **Create pathway builder routes**
+
+  * Create:
+
+    * `GET /api/admin/pathways`
+    * `POST /api/admin/pathways`
+    * `PATCH /api/admin/pathways/:id`
+    * `DELETE /api/admin/pathways/:id`
+
+* [ ] **Create admin frontend pages**
+
+  * Routes:
+
+    * `/admin/users`
+    * `/admin/clinics`
+    * `/admin/pathways`
+    * `/admin/notification-templates`
+
+* [ ] **Create pathway builder UI**
+
+  * Allow:
+
+    * create pathway
+    * edit pathway
+    * add step
+    * reorder steps
+    * remove steps
+    * publish pathway
+
+## Acceptance Criteria
+
+* Admins can create users.
+* Admins can manage clinics.
+* Admins can create pathways without code changes.
+* Admins can create notification templates.
+* Published pathways are immediately available.
+* Tests pass.
+* Frontend build passes.
+
+## Recommended Cursor Prompt
+
+```txt
+Implement Phase 14 (Admin Platform & Pathway Builder).
+
+Create a complete admin experience including:
+
+- user management
+- clinic management
+- pathway builder
+- notification templates
+
+Allow pathways to be built entirely through the UI.
+
+Run:
+- npm test
+- npm run typecheck
+- cd client && npm run build
+```
+
+---
+
+# Phase 15 — Operational Features
+
+Add production-grade operational capabilities expected by clinic staff.
+
+## Checklist
+
+* [ ] **Create password reset workflow**
+
+  * Routes:
+
+    * `POST /api/auth/forgot-password`
+    * `POST /api/auth/reset-password`
+    * `POST /api/patient-auth/forgot-password`
+    * `POST /api/patient-auth/reset-password`
+
+* [ ] **Create PasswordResetToken model**
+
+  * Fields:
+
+    * token
+    * expiresAt
+    * usedAt
+
+* [ ] **Create invitation workflow**
+
+  * Model:
+
+    * `UserInvitation`
+
+  * Routes:
+
+    * `POST /api/admin/invitations`
+    * `GET /api/admin/invitations`
+
+* [ ] **Create notification preferences**
+
+  * Model:
+
+    * `NotificationPreference`
+
+  * Channels:
+
+    * IN_APP
+    * PUSH
+    * EMAIL
+    * SMS
+
+  * Routes:
+
+    * `GET /api/preferences`
+    * `PATCH /api/preferences`
+
+* [ ] **Create export jobs**
+
+  * Model:
+
+    * `ExportJob`
+
+  * Routes:
+
+    * `POST /api/export`
+    * `GET /api/export/:id`
+
+* [ ] **Support exports**
+
+  * CSV
+  * XLSX
+
+* [ ] **Create settings page**
+
+  * Route:
+
+    * `/settings`
+
+## Acceptance Criteria
+
+* Users can recover accounts.
+* Users can configure notification preferences.
+* Invitations work.
+* Export jobs work.
+* CSV exports function correctly.
+* Tests pass.
+* Frontend build passes.
+
+## Recommended Cursor Prompt
+
+```txt
+Implement Phase 15 (Operational Features).
+
+Add:
+
+- password recovery
+- user invitations
+- notification preferences
+- export jobs
+- settings page
+
+Support CSV and XLSX exports.
+
+Run:
+- npm test
+- npm run typecheck
+- cd client && npm run build
+```
+
+---
+
+# Phase 16 — Pilot Program Infrastructure
+
+Create tooling required for onboarding and supporting pilot clinics.
+
+## Checklist
+
+* [ ] **Create feedback model**
+
+  * Create:
+
+    * `Feedback`
+
+  * Fields:
+
+    * userId
+    * clinicId
+    * category
+    * message
+    * status
+
+* [ ] **Create feature flag model**
+
+  * Create:
+
+    * `FeatureFlag`
+
+  * Fields:
+
+    * name
+    * enabled
+    * clinicId
+
+* [ ] **Create clinic onboarding model**
+
+  * Create:
+
+    * `ClinicOnboarding`
+
+* [ ] **Create feedback routes**
+
+  * Create:
+
+    * `POST /api/feedback`
+    * `GET /api/feedback`
+
+* [ ] **Create feature flag routes**
+
+  * Create:
+
+    * `GET /api/feature-flags`
+    * `PATCH /api/feature-flags/:id`
+
+* [ ] **Create pilot admin dashboard**
+
+  * Route:
+
+    * `/admin/pilot`
+
+* [ ] **Create onboarding tracking**
+
+  * Track:
+
+    * onboarding progress
+    * imported patients
+    * clinician setup
+    * pathway configuration
+
+* [ ] **Create pilot documentation**
+
+  * Files:
+
+    * `docs/PILOT_GUIDE.md`
+    * `docs/ONBOARDING_GUIDE.md`
+
+## Acceptance Criteria
+
+* Pilot clinics can be onboarded.
+* Feature flags work.
+* Feedback collection works.
+* Onboarding progress is visible.
+* Documentation exists.
+* Tests pass.
+
+## Recommended Cursor Prompt
+
+```txt
+Implement Phase 16 (Pilot Program Infrastructure).
+
+Create:
+
+- feedback system
+- feature flags
+- onboarding tracking
+- pilot admin dashboard
+
+Add onboarding and pilot documentation.
+
+Run:
+- npm test
+- npm run typecheck
+```
+
+---
+
+# Phase 17 — Healthcare Compliance Foundation
+
+Build the technical and documentation foundation for future HIPAA and healthcare compliance efforts.
+
+This phase does not claim HIPAA compliance.
+
+## Checklist
+
+* [ ] **Create PHI inventory documentation**
+
+  * Create:
+
+    * `docs/PHI_INVENTORY.md`
+
+* [ ] **Create access control documentation**
+
+  * Create:
+
+    * `docs/ACCESS_CONTROL.md`
+
+* [ ] **Create audit logging documentation**
+
+  * Create:
+
+    * `docs/AUDIT_LOGGING.md`
+
+* [ ] **Create retention policy documentation**
+
+  * Create:
+
+    * `docs/RETENTION_POLICY.md`
+
+* [ ] **Create security architecture documentation**
+
+  * Create:
+
+    * `docs/SECURITY_ARCHITECTURE.md`
+
+* [ ] **Review encryption**
+
+  * Data at rest
+  * Data in transit
+  * Secrets management
+
+* [ ] **Review audit logging coverage**
+
+  * Patients
+  * Check-ins
+  * Notifications
+  * Pathway enrollments
+  * Authentication events
+
+* [ ] **Review backup strategy**
+
+  * Database backups
+  * Restore procedures
+
+* [ ] **Review disaster recovery**
+
+  * Recovery process
+  * Recovery objectives
+
+* [ ] **Review incident response**
+
+  * Security incidents
+  * Data breach procedures
+
+## Acceptance Criteria
+
+* PHI inventory completed.
+* Access control documentation completed.
+* Security architecture documented.
+* Audit coverage reviewed.
+* Backup and recovery plans documented.
+* Compliance foundation documentation exists.
+
+## Recommended Cursor Prompt
+
+```txt
+Implement Phase 17 (Healthcare Compliance Foundation).
+
+Create healthcare compliance preparation documentation and perform architecture reviews.
+
+Create:
+- PHI inventory
+- access control documentation
+- audit logging documentation
+- retention policy
+- security architecture documentation
+
+Review:
+- encryption
+- backups
+- disaster recovery
+- incident response
+
+Do not claim HIPAA compliance.
+
+Focus on creating the foundation required for future compliance efforts.
+```
+
+---
+
+
+
