@@ -16,7 +16,7 @@ function expectFailure(
     data: unknown;
     error: { message: string; details?: unknown };
   },
-  messagePattern?: RegExp
+  messagePattern?: RegExp,
 ) {
   expect(body.success).toBe(false);
   expect(body.data).toBeNull();
@@ -56,9 +56,7 @@ describe("Healthcare API", () => {
     });
 
     it("rejects an empty name", async () => {
-      const res = await request(app)
-        .post("/api/clinics")
-        .send({ name: "" });
+      const res = await request(app).post("/api/clinics").send({ name: "" });
 
       expect(res.status).toBe(400);
       expectFailure(res.body, /invalid request/i);
@@ -75,7 +73,10 @@ describe("Healthcare API", () => {
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toMatchObject({ clinicId, name: "Mastectomy Recovery" });
+      expect(res.body.data).toMatchObject({
+        clinicId,
+        name: "Mastectomy Recovery",
+      });
       expect(res.body.data.id).toBeDefined();
       pathwayId = res.body.data.id;
     });
@@ -123,6 +124,54 @@ describe("Healthcare API", () => {
       enrollmentId = enrollment.id;
     });
 
+    it("creates clinic + pathway when clinicName and pathwayName are provided", async () => {
+      const clinicName = `Auto Clinic ${uid}`;
+      const pathwayName = `Auto Pathway ${uid}`;
+      const email = `auto-clinic-patient-${uid}@example.com`;
+
+      const res = await request(app)
+        .post("/api/workflows/onboard")
+        .send({
+          clinicName,
+          pathwayName,
+          patient: {
+            email,
+            firstName: "Auto",
+            lastName: "Clinic",
+            phone: "555-2222",
+          },
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.error).toBeNull();
+
+      const { clinic, pathway, user, patient, enrollment } = res.body.data;
+
+      expect(clinic.id).toBeDefined();
+      expect(clinic.name).toBe(clinicName);
+
+      expect(pathway.id).toBeDefined();
+      expect(pathway.name).toBe(pathwayName);
+      expect(pathway.clinicId).toBe(clinic.id);
+
+      expect(user.id).toBeDefined();
+      expect(user.email).toBe(email);
+      expect(user.role).toBe("PATIENT");
+      expect(user.clinicId).toBe(clinic.id);
+
+      expect(patient.id).toBeDefined();
+      expect(patient.firstName).toBe("Auto");
+      expect(patient.lastName).toBe("Clinic");
+      expect(patient.clinicId).toBe(clinic.id);
+      expect(patient.userId).toBe(user.id);
+
+      expect(enrollment.id).toBeDefined();
+      expect(enrollment.patientId).toBe(patient.id);
+      expect(enrollment.pathwayId).toBe(pathway.id);
+      expect(enrollment.status).toBe("ACTIVE");
+    });
+
     it("rejects duplicate email", async () => {
       const res = await request(app)
         .post("/api/workflows/onboard")
@@ -145,7 +194,7 @@ describe("Healthcare API", () => {
   describe("GET /api/workflows/patients/:id/dashboard", () => {
     it("returns the patient with their enrollments", async () => {
       const res = await request(app).get(
-        `/api/workflows/patients/${patientId}/dashboard`
+        `/api/workflows/patients/${patientId}/dashboard`,
       );
 
       expect(res.status).toBe(200);
@@ -153,12 +202,14 @@ describe("Healthcare API", () => {
       expect(res.body.data.patient.id).toBe(patientId);
       expect(res.body.data.patient.firstName).toBe("Alice");
       expect(res.body.data.enrollments).toHaveLength(1);
-      expect(res.body.data.enrollments[0].pathway.name).toBe("Mastectomy Recovery");
+      expect(res.body.data.enrollments[0].pathway.name).toBe(
+        "Mastectomy Recovery",
+      );
     });
 
     it("returns 404 for unknown patient", async () => {
       const res = await request(app).get(
-        "/api/workflows/patients/nonexistent/dashboard"
+        "/api/workflows/patients/nonexistent/dashboard",
       );
       expect(res.status).toBe(404);
       expectFailure(res.body, /patient not found/i);
@@ -169,7 +220,7 @@ describe("Healthcare API", () => {
   describe("GET /api/workflows/clinics/:id/queue", () => {
     it("lists active enrollments for the clinic", async () => {
       const res = await request(app).get(
-        `/api/workflows/clinics/${clinicId}/queue`
+        `/api/workflows/clinics/${clinicId}/queue`,
       );
 
       expect(res.status).toBe(200);
@@ -178,7 +229,7 @@ describe("Healthcare API", () => {
       expect(res.body.data.length).toBeGreaterThanOrEqual(1);
 
       const entry = res.body.data.find(
-        (e: { enrollmentId: string }) => e.enrollmentId === enrollmentId
+        (e: { enrollmentId: string }) => e.enrollmentId === enrollmentId,
       );
       expect(entry).toBeDefined();
       expect(entry.patientId).toBe(patientId);
@@ -189,7 +240,7 @@ describe("Healthcare API", () => {
 
     it("returns empty array for clinic with no enrollments", async () => {
       const res = await request(app).get(
-        "/api/workflows/clinics/nonexistent/queue"
+        "/api/workflows/clinics/nonexistent/queue",
       );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -197,7 +248,7 @@ describe("Healthcare API", () => {
     });
   });
 
-    // ── GET single-resource endpoints ─────────────────────────
+  // ── GET single-resource endpoints ─────────────────────────
   describe("GET single-resource endpoints", () => {
     describe("GET /api/clinics/:id", () => {
       it("returns a clinic by id", async () => {
@@ -281,7 +332,7 @@ describe("Healthcare API", () => {
     });
   });
 
-    // ── List endpoints with filters ───────────────────────────
+  // ── List endpoints with filters ───────────────────────────
   describe("List endpoints with filters", () => {
     describe("GET /api/users?clinicId=...", () => {
       it("lists users filtered by clinicId", async () => {
@@ -292,9 +343,7 @@ describe("Healthcare API", () => {
         expect(res.body.error).toBeNull();
         expect(res.body.data).toBeInstanceOf(Array);
 
-        const user = res.body.data.find(
-          (u: { id: string }) => u.id === userId
-        );
+        const user = res.body.data.find((u: { id: string }) => u.id === userId);
 
         expect(user).toBeDefined();
         expect(user.clinicId).toBe(clinicId);
@@ -305,7 +354,9 @@ describe("Healthcare API", () => {
 
     describe("GET /api/patients?clinicId=...", () => {
       it("lists patients filtered by clinicId", async () => {
-        const res = await request(app).get(`/api/patients?clinicId=${clinicId}`);
+        const res = await request(app).get(
+          `/api/patients?clinicId=${clinicId}`,
+        );
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
@@ -313,7 +364,7 @@ describe("Healthcare API", () => {
         expect(res.body.data).toBeInstanceOf(Array);
 
         const patient = res.body.data.find(
-          (p: { id: string }) => p.id === patientId
+          (p: { id: string }) => p.id === patientId,
         );
 
         expect(patient).toBeDefined();
@@ -326,7 +377,7 @@ describe("Healthcare API", () => {
     describe("GET /api/enrollments?patientId=...", () => {
       it("lists enrollments filtered by patientId", async () => {
         const res = await request(app).get(
-          `/api/enrollments?patientId=${patientId}`
+          `/api/enrollments?patientId=${patientId}`,
         );
 
         expect(res.status).toBe(200);
@@ -335,7 +386,7 @@ describe("Healthcare API", () => {
         expect(res.body.data).toBeInstanceOf(Array);
 
         const enrollment = res.body.data.find(
-          (e: { id: string }) => e.id === enrollmentId
+          (e: { id: string }) => e.id === enrollmentId,
         );
 
         expect(enrollment).toBeDefined();
@@ -348,7 +399,7 @@ describe("Healthcare API", () => {
     describe("GET /api/enrollments?clinicId=...", () => {
       it("lists enrollments filtered by clinicId", async () => {
         const res = await request(app).get(
-          `/api/enrollments?clinicId=${clinicId}`
+          `/api/enrollments?clinicId=${clinicId}`,
         );
 
         expect(res.status).toBe(200);
@@ -357,7 +408,7 @@ describe("Healthcare API", () => {
         expect(res.body.data).toBeInstanceOf(Array);
 
         const enrollment = res.body.data.find(
-          (e: { id: string }) => e.id === enrollmentId
+          (e: { id: string }) => e.id === enrollmentId,
         );
 
         expect(enrollment).toBeDefined();
@@ -369,7 +420,9 @@ describe("Healthcare API", () => {
 
     describe("GET /api/pathways?clinicId=...", () => {
       it("lists pathways filtered by clinicId", async () => {
-        const res = await request(app).get(`/api/pathways?clinicId=${clinicId}`);
+        const res = await request(app).get(
+          `/api/pathways?clinicId=${clinicId}`,
+        );
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
@@ -377,7 +430,7 @@ describe("Healthcare API", () => {
         expect(res.body.data).toBeInstanceOf(Array);
 
         const pathway = res.body.data.find(
-          (p: { id: string }) => p.id === pathwayId
+          (p: { id: string }) => p.id === pathwayId,
         );
 
         expect(pathway).toBeDefined();
@@ -387,13 +440,11 @@ describe("Healthcare API", () => {
     });
   });
 
-    // ── Validation edge cases ─────────────────────────────────
+  // ── Validation edge cases ─────────────────────────────────
   describe("Validation edge cases", () => {
     describe("Missing required fields", () => {
       it("returns 400 when clinic name is missing", async () => {
-        const res = await request(app)
-          .post("/api/clinics")
-          .send({});
+        const res = await request(app).post("/api/clinics").send({});
 
         expect(res.status).toBe(400);
         expectFailure(res.body, /invalid request/i);
@@ -411,9 +462,7 @@ describe("Healthcare API", () => {
       });
 
       it("returns 400 when pathway name is missing", async () => {
-        const res = await request(app)
-          .post("/api/pathways")
-          .send({ clinicId });
+        const res = await request(app).post("/api/pathways").send({ clinicId });
 
         expect(res.status).toBe(400);
         expectFailure(res.body, /invalid request/i);
@@ -439,12 +488,10 @@ describe("Healthcare API", () => {
       });
 
       it("returns 400 when onboard patient object is missing", async () => {
-        const res = await request(app)
-          .post("/api/workflows/onboard")
-          .send({
-            clinicId,
-            pathwayId,
-          });
+        const res = await request(app).post("/api/workflows/onboard").send({
+          clinicId,
+          pathwayId,
+        });
 
         expect(res.status).toBe(400);
         expectFailure(res.body, /invalid request/i);
@@ -472,9 +519,51 @@ describe("Healthcare API", () => {
         expect(res.body.error.details).toBeDefined();
       });
     });
+
+    describe("Empty filter values", () => {
+      it("returns 400 when users clinicId filter is empty", async () => {
+        const res = await request(app).get("/api/users?clinicId=");
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when patients clinicId filter is empty", async () => {
+        const res = await request(app).get("/api/patients?clinicId=");
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when pathways clinicId filter is empty", async () => {
+        const res = await request(app).get("/api/pathways?clinicId=");
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when enrollments patientId filter is empty", async () => {
+        const res = await request(app).get("/api/enrollments?patientId=");
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when enrollments clinicId filter is empty", async () => {
+        const res = await request(app).get("/api/enrollments?clinicId=");
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+    });
   });
 
-    // ── PATCH endpoints ───────────────────────────────────────
+  // ── PATCH endpoints ───────────────────────────────────────
   describe("PATCH endpoints", () => {
     describe("PATCH /api/clinics/:id", () => {
       it("updates a clinic name", async () => {
@@ -597,13 +686,11 @@ describe("Healthcare API", () => {
       it("updates user email, role, and status", async () => {
         const updatedEmail = `updated-alice-${uid}@example.com`;
 
-        const res = await request(app)
-          .patch(`/api/users/${userId}`)
-          .send({
-            email: updatedEmail,
-            role: "ADMIN",
-            status: "DISABLED",
-          });
+        const res = await request(app).patch(`/api/users/${userId}`).send({
+          email: updatedEmail,
+          role: "ADMIN",
+          status: "DISABLED",
+        });
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
@@ -633,9 +720,7 @@ describe("Healthcare API", () => {
       });
 
       it("rejects an empty PATCH body", async () => {
-        const res = await request(app)
-          .patch(`/api/users/${userId}`)
-          .send({});
+        const res = await request(app).patch(`/api/users/${userId}`).send({});
 
         expect(res.status).toBe(400);
         expectFailure(res.body, /invalid request|at least one field|required/i);

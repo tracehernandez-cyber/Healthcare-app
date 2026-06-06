@@ -279,6 +279,10 @@ Backfill test coverage for all CRUD endpoints and edge cases.
   - Missing required fields returns 400
   - Invalid email format returns 400
   - Empty PATCH body returns 400
+  - GET /api/users
+  - GET /api/patients
+  - GET /api/pathways
+  - GET /api/enrollments
 
 - [ ] **Onboard workflow variant**
   - Onboard with `clinicName` (auto-creates clinic) instead of `clinicId`
