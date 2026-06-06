@@ -281,6 +281,112 @@ describe("Healthcare API", () => {
     });
   });
 
+    // ── List endpoints with filters ───────────────────────────
+  describe("List endpoints with filters", () => {
+    describe("GET /api/users?clinicId=...", () => {
+      it("lists users filtered by clinicId", async () => {
+        const res = await request(app).get(`/api/users?clinicId=${clinicId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data).toBeInstanceOf(Array);
+
+        const user = res.body.data.find(
+          (u: { id: string }) => u.id === userId
+        );
+
+        expect(user).toBeDefined();
+        expect(user.clinicId).toBe(clinicId);
+        expect(user.email).toBe(`alice-${uid}@example.com`);
+        expect(user.role).toBe("PATIENT");
+      });
+    });
+
+    describe("GET /api/patients?clinicId=...", () => {
+      it("lists patients filtered by clinicId", async () => {
+        const res = await request(app).get(`/api/patients?clinicId=${clinicId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data).toBeInstanceOf(Array);
+
+        const patient = res.body.data.find(
+          (p: { id: string }) => p.id === patientId
+        );
+
+        expect(patient).toBeDefined();
+        expect(patient.clinicId).toBe(clinicId);
+        expect(patient.firstName).toBe("Alice");
+        expect(patient.lastName).toBe("Smith");
+      });
+    });
+
+    describe("GET /api/enrollments?patientId=...", () => {
+      it("lists enrollments filtered by patientId", async () => {
+        const res = await request(app).get(
+          `/api/enrollments?patientId=${patientId}`
+        );
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data).toBeInstanceOf(Array);
+
+        const enrollment = res.body.data.find(
+          (e: { id: string }) => e.id === enrollmentId
+        );
+
+        expect(enrollment).toBeDefined();
+        expect(enrollment.patientId).toBe(patientId);
+        expect(enrollment.pathwayId).toBe(pathwayId);
+        expect(enrollment.status).toBe("ACTIVE");
+      });
+    });
+
+    describe("GET /api/enrollments?clinicId=...", () => {
+      it("lists enrollments filtered by clinicId", async () => {
+        const res = await request(app).get(
+          `/api/enrollments?clinicId=${clinicId}`
+        );
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data).toBeInstanceOf(Array);
+
+        const enrollment = res.body.data.find(
+          (e: { id: string }) => e.id === enrollmentId
+        );
+
+        expect(enrollment).toBeDefined();
+        expect(enrollment.patientId).toBe(patientId);
+        expect(enrollment.pathwayId).toBe(pathwayId);
+        expect(enrollment.status).toBe("ACTIVE");
+      });
+    });
+
+    describe("GET /api/pathways?clinicId=...", () => {
+      it("lists pathways filtered by clinicId", async () => {
+        const res = await request(app).get(`/api/pathways?clinicId=${clinicId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data).toBeInstanceOf(Array);
+
+        const pathway = res.body.data.find(
+          (p: { id: string }) => p.id === pathwayId
+        );
+
+        expect(pathway).toBeDefined();
+        expect(pathway.clinicId).toBe(clinicId);
+        expect(pathway.name).toBe("Mastectomy Recovery");
+      });
+    });
+  });
+
     // ── PATCH endpoints ───────────────────────────────────────
   describe("PATCH endpoints", () => {
     describe("PATCH /api/clinics/:id", () => {
