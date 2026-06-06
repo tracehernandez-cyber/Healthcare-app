@@ -387,6 +387,93 @@ describe("Healthcare API", () => {
     });
   });
 
+    // ── Validation edge cases ─────────────────────────────────
+  describe("Validation edge cases", () => {
+    describe("Missing required fields", () => {
+      it("returns 400 when clinic name is missing", async () => {
+        const res = await request(app)
+          .post("/api/clinics")
+          .send({});
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when pathway clinicId is missing", async () => {
+        const res = await request(app)
+          .post("/api/pathways")
+          .send({ name: "Missing Clinic ID Pathway" });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when pathway name is missing", async () => {
+        const res = await request(app)
+          .post("/api/pathways")
+          .send({ clinicId });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when onboard patient email is missing", async () => {
+        const res = await request(app)
+          .post("/api/workflows/onboard")
+          .send({
+            clinicId,
+            pathwayId,
+            patient: {
+              firstName: "Missing",
+              lastName: "Email",
+              phone: "555-0000",
+            },
+          });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+
+      it("returns 400 when onboard patient object is missing", async () => {
+        const res = await request(app)
+          .post("/api/workflows/onboard")
+          .send({
+            clinicId,
+            pathwayId,
+          });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+    });
+
+    describe("Invalid email format", () => {
+      it("returns 400 when onboard email format is invalid", async () => {
+        const res = await request(app)
+          .post("/api/workflows/onboard")
+          .send({
+            clinicId,
+            pathwayId,
+            patient: {
+              email: "not-an-email",
+              firstName: "Bad",
+              lastName: "Email",
+              phone: "555-0000",
+            },
+          });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|email/i);
+        expect(res.body.error.details).toBeDefined();
+      });
+    });
+  });
+
     // ── PATCH endpoints ───────────────────────────────────────
   describe("PATCH endpoints", () => {
     describe("PATCH /api/clinics/:id", () => {
