@@ -325,7 +325,7 @@ describe("Healthcare API", () => {
           .send({
             email: updatedEmail,
             role: "ADMIN",
-            status: "INACTIVE",
+            status: "DISABLED",
           });
 
         expect(res.status).toBe(200);
@@ -334,7 +334,7 @@ describe("Healthcare API", () => {
         expect(res.body.data.id).toBe(userId);
         expect(res.body.data.email).toBe(updatedEmail);
         expect(res.body.data.role).toBe("ADMIN");
-        expect(res.body.data.status).toBe("INACTIVE");
+        expect(res.body.data.status).toBe("DISABLED");
       });
 
       it("returns 404 for a missing user", async () => {
