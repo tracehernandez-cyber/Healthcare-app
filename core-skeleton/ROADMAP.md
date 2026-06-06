@@ -63,7 +63,7 @@ Read the checklist items, fix each one, and run `npm test` after to
 confirm nothing is broken. Follow the product scope constraint in
 ROADMAP.md (oncology focus).
 ```
-
+COMPLETE
 ---
 
 ## Phase 2 — Seed Script
@@ -111,9 +111,7 @@ checklist. Register it in package.json and verify with
 `npx prisma db seed`. Follow the product scope constraint
 (cancer clinics only).
 ```
-
----
-
+COMPLETE
 ---
 
 ## Phase 2.5 — API Contract Review
@@ -197,6 +195,7 @@ The goal of this phase is to make the React frontend easy to build by clearly de
 
 ### Recommended Cursor Prompt
 
+COMPLETE
 ---
 
 ## Phase 3 — Frontend Scaffold
@@ -246,7 +245,7 @@ Create a Vite + React app in client/ with the 3 MVP pages described.
 Use Tailwind CSS. Proxy /api to localhost:3000. All labels and examples
 must be oncology-specific per the product scope constraint.
 ```
-
+COMPLETE
 ---
 
 ## Phase 4 — Missing Tests
