@@ -197,6 +197,90 @@ describe("Healthcare API", () => {
     });
   });
 
+    // ── GET single-resource endpoints ─────────────────────────
+  describe("GET single-resource endpoints", () => {
+    describe("GET /api/clinics/:id", () => {
+      it("returns a clinic by id", async () => {
+        const res = await request(app).get(`/api/clinics/${clinicId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(clinicId);
+        expect(res.body.data.name).toBe(`Test Clinic ${uid}`);
+      });
+
+      it("returns 404 for a missing clinic", async () => {
+        const res = await request(app).get("/api/clinics/does-not-exist");
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /clinic not found/i);
+      });
+    });
+
+    describe("GET /api/patients/:id", () => {
+      it("returns a patient by id", async () => {
+        const res = await request(app).get(`/api/patients/${patientId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(patientId);
+        expect(res.body.data.firstName).toBe("Alice");
+        expect(res.body.data.lastName).toBe("Smith");
+        expect(res.body.data.phone).toBe("555-1234");
+      });
+
+      it("returns 404 for a missing patient", async () => {
+        const res = await request(app).get("/api/patients/does-not-exist");
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /patient not found/i);
+      });
+    });
+
+    describe("GET /api/users/:id", () => {
+      it("returns a user by id", async () => {
+        const res = await request(app).get(`/api/users/${userId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(userId);
+        expect(res.body.data.email).toBe(`alice-${uid}@example.com`);
+        expect(res.body.data.role).toBe("PATIENT");
+      });
+
+      it("returns 404 for a missing user", async () => {
+        const res = await request(app).get("/api/users/does-not-exist");
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /user not found/i);
+      });
+    });
+
+    describe("GET /api/enrollments/:id", () => {
+      it("returns an enrollment by id", async () => {
+        const res = await request(app).get(`/api/enrollments/${enrollmentId}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(enrollmentId);
+        expect(res.body.data.patientId).toBe(patientId);
+        expect(res.body.data.pathwayId).toBe(pathwayId);
+        expect(res.body.data.status).toBe("ACTIVE");
+      });
+
+      it("returns 404 for a missing enrollment", async () => {
+        const res = await request(app).get("/api/enrollments/does-not-exist");
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /enrollment not found/i);
+      });
+    });
+  });
+
     // ── PATCH endpoints ───────────────────────────────────────
   describe("PATCH endpoints", () => {
     describe("PATCH /api/clinics/:id", () => {
