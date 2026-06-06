@@ -8,6 +8,7 @@ let clinicId: string;
 let pathwayId: string;
 let patientId: string;
 let enrollmentId: string;
+let userId: string;
 
 function expectFailure(
   body: {
@@ -117,6 +118,7 @@ describe("Healthcare API", () => {
       expect(enrollment.status).toBe("ACTIVE");
       expect(enrollment.pathwayId).toBe(pathwayId);
 
+      userId = user.id;
       patientId = patient.id;
       enrollmentId = enrollment.id;
     });
@@ -192,6 +194,213 @@ describe("Healthcare API", () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toEqual([]);
+    });
+  });
+
+    // ── PATCH endpoints ───────────────────────────────────────
+  describe("PATCH endpoints", () => {
+    describe("PATCH /api/clinics/:id", () => {
+      it("updates a clinic name", async () => {
+        const res = await request(app)
+          .patch(`/api/clinics/${clinicId}`)
+          .send({ name: `Updated Clinic ${uid}` });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(clinicId);
+        expect(res.body.data.name).toBe(`Updated Clinic ${uid}`);
+      });
+
+      it("returns 404 for a missing clinic", async () => {
+        const res = await request(app)
+          .patch("/api/clinics/does-not-exist")
+          .send({ name: "Missing Clinic" });
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /clinic not found/i);
+      });
+
+      it("rejects an empty PATCH body", async () => {
+        const res = await request(app)
+          .patch(`/api/clinics/${clinicId}`)
+          .send({});
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|at least one field|required/i);
+      });
+    });
+
+    describe("PATCH /api/pathways/:id", () => {
+      it("updates a pathway name", async () => {
+        const res = await request(app)
+          .patch(`/api/pathways/${pathwayId}`)
+          .send({ name: `Updated Pathway ${uid}` });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(pathwayId);
+        expect(res.body.data.name).toBe(`Updated Pathway ${uid}`);
+      });
+
+      it("returns 404 for a missing pathway", async () => {
+        const res = await request(app)
+          .patch("/api/pathways/does-not-exist")
+          .send({ name: "Missing Pathway" });
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /pathway not found/i);
+      });
+
+      it("rejects an empty PATCH body", async () => {
+        const res = await request(app)
+          .patch(`/api/pathways/${pathwayId}`)
+          .send({});
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|at least one field|required/i);
+      });
+    });
+
+    describe("PATCH /api/enrollments/:id", () => {
+      it("updates enrollment status from ACTIVE to PAUSED", async () => {
+        const res = await request(app)
+          .patch(`/api/enrollments/${enrollmentId}`)
+          .send({ status: "PAUSED" });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(enrollmentId);
+        expect(res.body.data.status).toBe("PAUSED");
+      });
+
+      it("updates enrollment status from PAUSED to COMPLETED", async () => {
+        const res = await request(app)
+          .patch(`/api/enrollments/${enrollmentId}`)
+          .send({ status: "COMPLETED" });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(enrollmentId);
+        expect(res.body.data.status).toBe("COMPLETED");
+      });
+
+      it("rejects an invalid enrollment status", async () => {
+        const res = await request(app)
+          .patch(`/api/enrollments/${enrollmentId}`)
+          .send({ status: "NOT_A_REAL_STATUS" });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|invalid status/i);
+      });
+
+      it("returns 404 for a missing enrollment", async () => {
+        const res = await request(app)
+          .patch("/api/enrollments/does-not-exist")
+          .send({ status: "PAUSED" });
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /enrollment not found/i);
+      });
+
+      it("rejects an empty PATCH body", async () => {
+        const res = await request(app)
+          .patch(`/api/enrollments/${enrollmentId}`)
+          .send({});
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|at least one field|required/i);
+      });
+    });
+
+    describe("PATCH /api/users/:id", () => {
+      it("updates user email, role, and status", async () => {
+        const updatedEmail = `updated-alice-${uid}@example.com`;
+
+        const res = await request(app)
+          .patch(`/api/users/${userId}`)
+          .send({
+            email: updatedEmail,
+            role: "ADMIN",
+            status: "INACTIVE",
+          });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(userId);
+        expect(res.body.data.email).toBe(updatedEmail);
+        expect(res.body.data.role).toBe("ADMIN");
+        expect(res.body.data.status).toBe("INACTIVE");
+      });
+
+      it("returns 404 for a missing user", async () => {
+        const res = await request(app)
+          .patch("/api/users/does-not-exist")
+          .send({ email: `missing-${uid}@example.com` });
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /user not found/i);
+      });
+
+      it("rejects invalid email format", async () => {
+        const res = await request(app)
+          .patch(`/api/users/${userId}`)
+          .send({ email: "not-an-email" });
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|email/i);
+      });
+
+      it("rejects an empty PATCH body", async () => {
+        const res = await request(app)
+          .patch(`/api/users/${userId}`)
+          .send({});
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|at least one field|required/i);
+      });
+    });
+
+    describe("PATCH /api/patients/:id", () => {
+      it("updates patient firstName, lastName, and phone", async () => {
+        const res = await request(app)
+          .patch(`/api/patients/${patientId}`)
+          .send({
+            firstName: "UpdatedAlice",
+            lastName: "UpdatedSmith",
+            phone: "555-9999",
+          });
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.error).toBeNull();
+        expect(res.body.data.id).toBe(patientId);
+        expect(res.body.data.firstName).toBe("UpdatedAlice");
+        expect(res.body.data.lastName).toBe("UpdatedSmith");
+        expect(res.body.data.phone).toBe("555-9999");
+      });
+
+      it("returns 404 for a missing patient", async () => {
+        const res = await request(app)
+          .patch("/api/patients/does-not-exist")
+          .send({ firstName: "Missing" });
+
+        expect(res.status).toBe(404);
+        expectFailure(res.body, /patient not found/i);
+      });
+
+      it("rejects an empty PATCH body", async () => {
+        const res = await request(app)
+          .patch(`/api/patients/${patientId}`)
+          .send({});
+
+        expect(res.status).toBe(400);
+        expectFailure(res.body, /invalid request|at least one field|required/i);
+      });
     });
   });
 });
